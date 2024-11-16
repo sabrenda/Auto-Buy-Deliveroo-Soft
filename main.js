@@ -43,23 +43,21 @@ const config = {
 async function main() {
   const ws = await getProxy(profileId);
   const browser = await puppeteer.connect({ browserWSEndpoint: ws });
-
-  // создаем новую вкладку, задаем разрешение экрана, переходим на сайт
   const page = await browser.newPage();
   await page.setViewport({ ...config.viewport });
 
-  // предварительно переходим на страницу
   await page.goto(config.link, { waitUntil: "networkidle2", timeout: 300000 });
 
-  await waitForSpecificTime(); // Ожидание старта сейла
-  await ensureNoModal(page); // Проверка наличия модального окна до продаж
-  const isDisabledFirst = await ensureEnableBtn(page); // проверка на активность кнопок
-  const status = await сhocolatesAdd(page, isDisabledFirst); // Добавление шоколадных блоков
+  await waitForSpecificTime();
+  await ensureNoModal(page);
 
-  if (status) return; // Если добавления в корзину нет, заврешаем работу
+  const isDisabledFirst = await ensureEnableBtn(page);
+  const status = await сhocolatesAdd(page, isDisabledFirst);
 
-  await goToCheckout(page); // Переход к оформлению заказа
-  await payWithCard(page); // Оплата картой
+  if (status) return "Chocolates not added";
+
+  await goToCheckout(page);
+  await payWithCard(page);
 
   return "Process completed";
 }
@@ -80,9 +78,9 @@ async function waitForSpecificTime() {
     targetTime.setHours(hours, minutes, seconds, 0);
   }
 
-  const timeDifference = targetTime - now; // Разница во времени
+  const timeDifference = targetTime - now;
   if (timeDifference > 0) {
-    await new Promise((resolve) => setTimeout(resolve, timeDifference)); // Ожидание
+    await new Promise((resolve) => setTimeout(resolve, timeDifference));
   }
 }
 
@@ -146,7 +144,7 @@ async function ensureEnableBtn(page) {
     modalButton
   );
 
-  //* если кнопка disable, перезагружаем страницу
+
   if (disabled_first) {
     await page.reload({
       waitUntil: "networkidle2",
@@ -188,7 +186,7 @@ async function addFix(page, isDisabledFirst) {
           let k = 0;
           for (const n of names) {
             if (n.textContent === taste4) {
-              // * если в проверке ранее не было disable то открываем модалку
+
               if (!isDisabledFirst) {
                 const shop = namesUl.querySelectorAll("li")[k];
                 const openModal = shop.querySelector("div[role='button']");
@@ -212,7 +210,6 @@ async function addFix(page, isDisabledFirst) {
                 await checkbox.click();
                 // ! --------------------------------------------------------------------
 
-                // * Имитация кликов по кнопке добавления количества
                 for (let clickCount = 0; clickCount < 3; clickCount++) {
                   await addBtn.click();
                   await new Promise((resolve) => setTimeout(resolve, 50));
@@ -306,9 +303,7 @@ async function addBox6(page, disabledFix) {
                 // !----------------------------------------------------------------------
 
                 await add_btn.click();
-
                 await new Promise((resolve) => setTimeout(resolve, 100));
-                // второй плюсик для добавления одной шоколадки в бокс
 
                 const addToo = Array.from(
                   document.querySelectorAll(
@@ -316,7 +311,6 @@ async function addBox6(page, disabledFix) {
                   )
                 )[indexFlavours + 1];
 
-                // Имитация кликов по кнопке добавления количества
                 for (let clickCount = 0; clickCount < 5; clickCount++) {
                   const isDisabled_ = addToo && addToo.hasAttribute("disabled");
 
@@ -458,19 +452,14 @@ async function checkChoco(page, chocoFlag, riderFlag, noChoco) {
 }
 
 async function goToCheckout(page) {
-  //* ждем кнопки [Go to checkout]
   await page.waitForSelector(config.selectors.goToCheckout);
-
-  //* ждем что кнопка [Go to checkout] не disabled
   await page.waitForFunction(() => {
     const button = document.querySelector(config.selectors.goToCheckout);
-    return button && !button.disabled; // Проверка, что кнопка существует и не disabled
+    return button && !button.disabled;
   });
 
-  //* Нажимаем на кнопку [Go to checkout], когда она активна
   await page.click(config.selectors.goToCheckout);
 
-  // * Если вылезла модалка повторного [Go to checkout]
   try {
     await page.waitForSelector(
       "div[class='ReactModalPortal'] > div >  div >  div > div:nth-of-type(3) span button",

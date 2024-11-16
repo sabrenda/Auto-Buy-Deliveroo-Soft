@@ -12,7 +12,7 @@ async function getProxy(profileId) {
     }
   );
 
-  return data.data.ws.puppeteer; // Вернем WebSocket URL
+  return data.data.ws.puppeteer;
 }
 
 function run(command, label) {

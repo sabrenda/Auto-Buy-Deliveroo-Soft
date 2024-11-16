@@ -1,16 +1,16 @@
 const { run } = require("./utils");
 const inquirer = require("inquirer").default;
 
-// Настройки пользователей и их параметры
+// Настройки пользователей
 const userConfigs = {
   Ahmed: [
     { profileId: "kpgf9gx", id: 55 },
     { profileId: "kpgessr", id: 52 },
     { profileId: "kpgepux", id: 50 },
-    { profileId: "kpgefg2", id: 46 },
-    { profileId: "kpgedc5", id: 45 },
-    { profileId: "korvimg", id: 43 },
-    { profileId: "korvhe8", id: 42 },
+    // { profileId: "kpgefg2", id: 46 },
+    // { profileId: "kpgedc5", id: 45 },
+    // { profileId: "korvimg", id: 43 },
+    // { profileId: "korvhe8", id: 42 },
     // { profileId: "korvfor", id: 41 },
     // { profileId: "korvdvd", id: 40 },
     // { profileId: "korvcs0", id: 39 },
@@ -71,7 +71,6 @@ async function promptUser() {
     },
   ]);
 
-  // Если выбрано "yes" для 4 шоколадок, спрашиваем вкус
   if (answers.fix4 === "yes") {
     const { taste4 } = await inquirer.prompt([
       {
@@ -93,7 +92,6 @@ async function promptUser() {
     answers.taste4 = "Can’t Get Knafeh of It-Hero";
   }
 
-  // Если выбрано "yes" для Box 6, спрашиваем вкус
   if (answers.box6 === "yes") {
     const { taste6 } = await inquirer.prompt([
       {
@@ -118,7 +116,6 @@ async function promptUser() {
   return answers;
 }
 
-// Универсальная функция для запуска команд
 async function executeRuns(user, time, fix4, box6, any6, taste4, taste6) {
   const config = userConfigs[user];
   if (!config) {
@@ -136,12 +133,11 @@ async function executeRuns(user, time, fix4, box6, any6, taste4, taste6) {
   }
 }
 
-// Основная функция
-async function main() {
+async function start() {
   const { time, user, fix4, box6, any6, taste4, taste6 } = await promptUser();
   await executeRuns(user, time, fix4, box6, any6, taste4, taste6);
   console.log('started all profiles!');
 }
 
-// Запуск скрипта
-main();
+
+start();
